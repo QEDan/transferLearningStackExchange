@@ -102,3 +102,7 @@ ENV/
 
 # data files
 *.csv
+glove.*.txt
+
+# Temporary emacs files
+*~
