@@ -31,10 +31,8 @@ from joblib import Parallel, delayed
 import pickle
 import csv
 nlp = spacy.load('en')
-#TODO: Fix removePunctuation for Python3
-table = str.maketrans("","")
 def removePunctuation(s):
-    return s.translate(table, string.punctuation)
+    return bytes(str(s).translate(str.maketrans('','',string.punctuation)), 'utf-8')
 
 def htmlToString(s):
     return BeautifulSoup(s, 'html.parser').get_text().encode('utf-8')
@@ -45,7 +43,7 @@ def getTranslatedText(s):
     list_of_tags = ['CD','FW','JJ','JJR','JJS','NN','NNP','NNPS','NNS','RB','RBR','RBS']
     for token in tokens:
         tags.append((token.lemma_,token.tag_))
-    filtered_list = filter(lambda x,y: y in list_of_tags, tags)
+    filtered_list = filter(lambda y: y in list_of_tags, tags)
     file_filtered_string = " ".join(map(lambda x,y: x, filtered_list)).lower()
     return file_filtered_string
 
@@ -68,6 +66,7 @@ def returnSplitToRowDF(df, column, delimiter=' '):
 if __name__ == '__main__':
     # # Load & Save to Disk.
     training = returnConcatDataFrame('/home/mazur/Documents/transferLearningStackExchange/data/')
+    training['tags'] = training['tags'].fillna("")
     training['processed'] = training.apply(lambda x: preprocessText(x['content']), axis=1)
     training['tagList'] = training.apply(lambda x: x['tags'].split(" "), axis=1)
     # TODO: Save pickle to pickle location
